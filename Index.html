@@ -5,17 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>مولد برنامه بدنسازی (IronArchitect)</title>
     
+    <!-- 1. Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     
+    <!-- 2. Html2Canvas for downloading images -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
+    <!-- 3. Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
+    <!-- 4. Lalezar Font & Custom Styles -->
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Lalezar&display=swap');
+        
         body {
             font-family: 'Lalezar', cursive;
+            background-color: #f1f5f9; /* slate-100 */
         }
+        
         /* Custom Fade Animation */
         .fade-in {
             animation: fadeIn 0.5s ease-in-out;
@@ -24,11 +31,21 @@
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
+
+        /* Hide scrollbar for clean UI if needed */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-900 min-h-screen pb-10">
+<body class="text-slate-900 min-h-screen pb-10">
 
-    <header class="bg-slate-900 text-white p-6 shadow-lg">
+    <!-- HEADER -->
+    <header class="bg-slate-900 text-white p-6 shadow-lg sticky top-0 z-50">
         <div class="max-w-4xl mx-auto flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <i data-lucide="dumbbell" class="text-emerald-400 w-8 h-8"></i>
@@ -40,30 +57,36 @@
 
     <main class="max-w-4xl mx-auto p-4 sm:p-6">
         
+        <!-- INPUT SECTION (Visible by default) -->
         <div id="input-section" class="bg-white rounded-2xl shadow-xl p-6 sm:p-8 fade-in">
             <div class="mb-8 text-center">
                 <h2 class="text-2xl text-slate-800 mb-2">طراحی برنامه اختصاصی شما</h2>
                 <p class="text-slate-500 text-lg">برای دریافت برنامه تمرینی هایپرتروفی (عضله سازی)، مشخصات زیر را انتخاب کنید.</p>
             </div>
 
+            <!-- Experience Level -->
             <div class="mb-6">
                 <h3 class="flex items-center gap-2 text-xl text-slate-800 mb-3">
                     <i data-lucide="activity" class="text-emerald-600 w-6 h-6 ml-1"></i>
                     سطح تجربه
                 </h3>
                 <div class="grid grid-cols-2 sm:grid-cols-3 gap-3" id="level-options">
-                    </div>
+                    <!-- Buttons injected by JS -->
+                </div>
             </div>
 
+            <!-- Split Type -->
             <div class="mb-6">
                 <h3 class="flex items-center gap-2 text-xl text-slate-800 mb-3">
                     <i data-lucide="calendar" class="text-emerald-600 w-6 h-6 ml-1"></i>
                     نوع تقسیم تمرین (Split)
                 </h3>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3" id="split-options">
-                    </div>
+                    <!-- Buttons injected by JS -->
+                </div>
             </div>
 
+            <!-- Info Box -->
             <div class="mb-6 bg-blue-50 text-blue-800 p-4 rounded-xl flex gap-3 items-start border border-blue-100">
                 <i data-lucide="info" class="w-5 h-5 mt-1 shrink-0 ml-2"></i>
                 <div>
@@ -77,13 +100,15 @@
                 </div>
             </div>
 
+            <!-- Equipment -->
             <div class="mb-6">
                 <h3 class="flex items-center gap-2 text-xl text-slate-800 mb-3">
                     <i data-lucide="dumbbell" class="text-emerald-600 w-6 h-6 ml-1"></i>
                     تجهیزات در دسترس
                 </h3>
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3" id="equipment-options">
-                     </div>
+                     <!-- Buttons injected by JS -->
+                </div>
             </div>
 
             <button id="generate-btn" class="w-full mt-6 bg-emerald-600 hover:bg-emerald-700 text-white text-xl py-4 px-6 rounded-xl shadow-lg transform transition active:scale-95 flex items-center justify-center gap-3">
@@ -92,15 +117,17 @@
             </button>
         </div>
 
+        <!-- RESULTS SECTION (Hidden by default) -->
         <div id="result-section" class="hidden fade-in">
             
+            <!-- Control Buttons (Not downloaded) -->
             <div class="bg-white p-4 rounded-xl shadow-sm mb-6 border border-slate-200 flex flex-col sm:flex-row justify-between items-center gap-4">
-                <div class="text-slate-600 text-lg">
-                   <span class="text-emerald-600 ml-2 font-bold">✓</span>
+                <div class="text-slate-600 text-lg flex items-center">
+                   <span class="text-emerald-600 ml-2 font-bold text-2xl">✓</span>
                    برنامه شما آماده است!
                 </div>
                 <div class="flex gap-2 w-full sm:w-auto">
-                   <button onclick="resetApp()" class="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 py-2 px-6 rounded-lg text-lg transition-colors">
+                   <button onclick="resetApp()" class="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 py-2 px-6 rounded-lg text-lg transition-colors border border-slate-300">
                      <i data-lucide="refresh-cw" class="w-4 h-4 ml-1"></i> ساخت مجدد
                    </button>
                    <button id="download-btn" onclick="downloadImage()" class="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white py-2 px-6 rounded-lg text-lg transition-colors shadow-md shadow-emerald-200">
@@ -109,23 +136,28 @@
                  </div>
              </div>
 
+            <!-- Printable Area (This part gets captured) -->
             <div id="printable-area" class="p-4 sm:p-8 bg-slate-100 rounded-xl min-h-[600px]">
                 <div class="mb-8 border-b-2 border-slate-200 pb-4">
                     <div class="flex justify-between items-end">
                       <div>
                         <h2 class="text-3xl text-emerald-800 mb-2">برنامه اختصاصی شما</h2>
                         <div class="flex gap-2 text-slate-500 text-lg" id="result-tags">
-                           </div>
+                           <!-- Tags injected here -->
+                        </div>
                       </div>
                       <div class="opacity-50 hidden sm:block">
-                        <i data-lucide="dumbbell" class="w-12 h-12 text-slate-300"></i>
+                        <i data-lucide="dumbbell" class="w-16 h-16 text-slate-300"></i>
                       </div>
                     </div>
                 </div>
 
+                <!-- Workout Container -->
                 <div id="workout-container" class="space-y-6">
-                    </div>
+                    <!-- Cards injected here -->
+                </div>
 
+                <!-- Footer Tips -->
                 <div class="mt-8 bg-slate-800 text-slate-300 p-6 rounded-xl relative overflow-hidden">
                     <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 to-blue-500"></div>
                     <h4 class="text-white text-xl mb-3 flex items-center gap-2">
@@ -145,6 +177,7 @@
 
     </main>
 
+    <!-- JAVASCRIPT LOGIC -->
     <script>
         // --- DATA ---
         const exerciseDatabase = [
@@ -275,12 +308,6 @@
                 return pool.sort(() => 0.5 - Math.random()).slice(0, count);
             };
 
-            const getVolume = (exerciseType) => {
-                if (level === 'مبتدی') return exerciseType === 'چند مفصلی' ? '۳ ست × ۸-۱۰ تکرار' : '۲ ست × ۱۲-۱۵ تکرار';
-                if (level === 'متوسط') return exerciseType === 'چند مفصلی' ? '۴ ست × ۶-۸ تکرار' : '۳ ست × ۱۰-۱۲ تکرار';
-                return exerciseType === 'چند مفصلی' ? '۵ ست × ۵ تکرار' : '۴ ست × ۸-۱۲ تکرار';
-            };
-
             // Logic Blocks
             if (split === 'کل بدن') {
                 const days = ['شنبه', 'دوشنبه', 'چهارشنبه'];
@@ -320,8 +347,8 @@
         function renderResults(schedule) {
             // Update Tags
             document.getElementById('result-tags').innerHTML = `
-                <span class="bg-white px-3 py-1 rounded-lg border border-slate-200 shadow-sm">${preferences.level}</span>
-                <span class="bg-white px-3 py-1 rounded-lg border border-slate-200 shadow-sm">${preferences.split}</span>
+                <span class="bg-white px-3 py-1 rounded-lg border border-slate-200 shadow-sm text-slate-700">${preferences.level}</span>
+                <span class="bg-white px-3 py-1 rounded-lg border border-slate-200 shadow-sm text-slate-700">${preferences.split}</span>
             `;
 
             // Build Cards HTML
@@ -427,3 +454,4 @@
     </script>
 </body>
 </html>
+
