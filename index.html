@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Bilingual Speech Hub</title>
     
     <!-- Tailwind CSS -->
@@ -15,6 +15,7 @@
         body {
             font-family: 'Inter', sans-serif;
             background-color: #f3f4f6;
+            overscroll-behavior-y: none; /* Prevent pull-to-refresh on mobile */
         }
         
         /* Persian Font Class */
@@ -60,7 +61,7 @@
             animation: pulse-dot 1.25s cubic-bezier(0.455, 0.03, 0.515, 0.955) -0.4s infinite;
         }
 
-        /* Hide Scrollbar on mobile but keep functionality */
+        /* Utility: Hide Scrollbar but keep functionality */
         .no-scrollbar::-webkit-scrollbar {
             display: none;
         }
@@ -76,35 +77,35 @@
     <div class="bg-white w-full max-w-2xl rounded-2xl shadow-xl overflow-hidden border border-gray-100 flex flex-col h-[85vh] md:h-auto md:min-h-[600px]">
         
         <!-- Header -->
-        <header class="bg-indigo-600 p-6 text-white text-center shadow-md shrink-0 relative">
+        <header class="bg-indigo-600 p-6 text-white text-center shadow-md shrink-0 relative z-20">
             <h1 class="text-2xl font-bold tracking-tight">Speech Hub</h1>
             <p class="text-indigo-200 text-sm mt-1">Text-to-Speech & Speech-to-Text</p>
             
             <!-- Info Icon/Tooltip -->
             <div class="absolute top-4 right-4 group">
-                <button class="text-indigo-200 hover:text-white transition-colors">
+                <button type="button" class="text-indigo-200 hover:text-white transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
                 </button>
                 <div class="absolute right-0 mt-2 w-48 bg-gray-800 text-white text-xs rounded p-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-                    Browser support for Persian voices varies by OS.
+                    If Persian TTS fails, install the Persian Language Pack in your device settings.
                 </div>
             </div>
         </header>
 
         <!-- Tabs -->
-        <div class="flex border-b border-gray-200 shrink-0">
-            <button id="tab-tts" class="flex-1 py-4 text-sm font-medium text-indigo-600 border-b-2 border-indigo-600 bg-indigo-50 transition-colors flex items-center justify-center gap-2 focus:outline-none">
+        <div class="flex border-b border-gray-200 shrink-0 relative z-20 bg-white">
+            <button type="button" id="tab-tts" class="flex-1 py-4 text-sm font-medium text-indigo-600 border-b-2 border-indigo-600 bg-indigo-50 transition-colors flex items-center justify-center gap-2 focus:outline-none touch-manipulation">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
                 Speak (TTS)
             </button>
-            <button id="tab-stt" class="flex-1 py-4 text-sm font-medium text-gray-500 hover:text-indigo-600 transition-colors flex items-center justify-center gap-2 focus:outline-none">
+            <button type="button" id="tab-stt" class="flex-1 py-4 text-sm font-medium text-gray-500 hover:text-indigo-600 transition-colors flex items-center justify-center gap-2 focus:outline-none touch-manipulation">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                 Listen (STT)
             </button>
         </div>
 
         <!-- Content Area -->
-        <div class="flex-1 relative overflow-hidden">
+        <div class="flex-1 relative overflow-hidden z-10">
             
             <!-- TTS Section -->
             <section id="content-tts" class="absolute inset-0 p-6 flex flex-col gap-4 overflow-y-auto transition-transform duration-300">
@@ -118,9 +119,9 @@
                         </select>
                     </div>
                     <div class="flex-1">
-                        <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Voice</label>
+                        <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Voice Preference</label>
                         <select id="tts-voice-select" class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2.5">
-                            <option disabled selected>Loading voices...</option>
+                            <option value="default" selected>Auto-detect</option>
                         </select>
                     </div>
                 </div>
@@ -135,14 +136,14 @@
 
                 <!-- Action Buttons -->
                 <div class="flex items-center gap-3 mt-auto pt-2">
-                    <button id="tts-speak-btn" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-lg shadow-sm transition-all transform active:scale-95 flex items-center justify-center gap-2">
+                    <button type="button" id="tts-speak-btn" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-lg shadow-sm transition-all transform active:scale-95 flex items-center justify-center gap-2 touch-manipulation">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
                         Speak
                     </button>
-                    <button id="tts-stop-btn" class="bg-red-50 text-red-600 hover:bg-red-100 border border-red-200 font-semibold py-3 px-4 rounded-lg transition-colors">
+                    <button type="button" id="tts-stop-btn" class="bg-red-50 text-red-600 hover:bg-red-100 border border-red-200 font-semibold py-3 px-4 rounded-lg transition-colors touch-manipulation">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/></svg>
                     </button>
-                    <button id="tts-clear-btn" class="bg-gray-50 text-gray-600 hover:bg-gray-100 border border-gray-200 font-semibold py-3 px-4 rounded-lg transition-colors" title="Clear Text">
+                    <button type="button" id="tts-clear-btn" class="bg-gray-50 text-gray-600 hover:bg-gray-100 border border-gray-200 font-semibold py-3 px-4 rounded-lg transition-colors touch-manipulation" title="Clear Text">
                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                     </button>
                 </div>
@@ -160,8 +161,8 @@
                 <!-- Language Selector -->
                 <div class="flex justify-center mb-2">
                     <div class="bg-gray-100 p-1 rounded-lg flex">
-                        <button class="stt-lang-btn px-4 py-1.5 rounded-md text-sm font-medium bg-white text-indigo-600 shadow-sm transition-all" data-lang="en-US">English</button>
-                        <button class="stt-lang-btn px-4 py-1.5 rounded-md text-sm font-medium text-gray-500 hover:text-gray-700 transition-all" data-lang="fa-IR">Persian</button>
+                        <button type="button" class="stt-lang-btn px-4 py-1.5 rounded-md text-sm font-medium bg-white text-indigo-600 shadow-sm transition-all touch-manipulation" data-lang="en-US">English</button>
+                        <button type="button" class="stt-lang-btn px-4 py-1.5 rounded-md text-sm font-medium text-gray-500 hover:text-gray-700 transition-all touch-manipulation" data-lang="fa-IR">Persian</button>
                     </div>
                 </div>
 
@@ -173,7 +174,7 @@
                     ></textarea>
                     
                     <!-- Copy Button -->
-                    <button id="stt-copy-btn" class="absolute top-4 right-4 bg-white/80 backdrop-blur-sm p-2 rounded-lg text-gray-500 hover:text-indigo-600 shadow-sm opacity-0 group-hover:opacity-100 transition-opacity border border-gray-100">
+                    <button type="button" id="stt-copy-btn" class="absolute top-4 right-4 bg-white/80 backdrop-blur-sm p-2 rounded-lg text-gray-500 hover:text-indigo-600 shadow-sm opacity-0 group-hover:opacity-100 transition-opacity border border-gray-100 touch-manipulation">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
                     </button>
                 </div>
@@ -185,7 +186,7 @@
 
                 <!-- Mic Button -->
                 <div class="flex justify-center pb-4">
-                    <button id="stt-mic-btn" class="relative w-20 h-20 rounded-full bg-indigo-600 text-white shadow-lg shadow-indigo-200 flex items-center justify-center transition-transform transform hover:scale-105 active:scale-95 focus:outline-none z-10">
+                    <button type="button" id="stt-mic-btn" class="relative w-20 h-20 rounded-full bg-indigo-600 text-white shadow-lg shadow-indigo-200 flex items-center justify-center transition-transform transform active:scale-95 focus:outline-none z-10 touch-manipulation">
                         <div id="mic-ring" class="recording-ring hidden"></div>
                         <svg id="mic-icon" class="relative z-10" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
                         
@@ -199,7 +200,7 @@
         </div>
 
         <!-- Toast Notification -->
-        <div id="toast" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-sm py-2 px-4 rounded-full shadow-lg opacity-0 transition-opacity pointer-events-none z-50">
+        <div id="toast" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-sm py-2 px-4 rounded-full shadow-lg opacity-0 transition-opacity pointer-events-none z-50 text-center w-max max-w-[90vw]">
             Notification
         </div>
 
@@ -243,7 +244,7 @@
                 toast.classList.remove('opacity-0');
                 setTimeout(() => {
                     toast.classList.add('opacity-0');
-                }, 2500);
+                }, 3000);
             }
 
             function setDirection(element, lang) {
@@ -277,34 +278,32 @@
                 voices = synth.getVoices();
                 const selectedLang = ttsLangSelect.value;
                 ttsVoiceSelect.innerHTML = '';
+                
+                // Add default option
+                const defaultOption = document.createElement('option');
+                defaultOption.textContent = "Auto-detect Best Voice";
+                defaultOption.value = 'default';
+                ttsVoiceSelect.appendChild(defaultOption);
 
-                // Filter voices based on selected language (lenient matching)
                 const langCode = selectedLang.split('-')[0]; // 'en' or 'fa'
                 
                 const filteredVoices = voices.filter(voice => 
                     voice.lang.includes(langCode) || voice.lang.includes(selectedLang)
                 );
 
-                if (filteredVoices.length === 0) {
+                filteredVoices.forEach(voice => {
                     const option = document.createElement('option');
-                    option.textContent = "Default Browser Voice";
-                    option.value = 'default';
+                    option.textContent = `${voice.name} (${voice.lang})`;
+                    option.value = voice.name;
                     ttsVoiceSelect.appendChild(option);
-                } else {
-                    filteredVoices.forEach(voice => {
-                        const option = document.createElement('option');
-                        option.textContent = `${voice.name} (${voice.lang})`;
-                        option.value = voice.name; // Using name as ID usually safer across browsers
-                        ttsVoiceSelect.appendChild(option);
-                    });
-                }
+                });
             }
 
-            // Chrome loads voices asynchronously
             if (speechSynthesis.onvoiceschanged !== undefined) {
                 speechSynthesis.onvoiceschanged = populateVoices;
             }
-            populateVoices(); // Call once immediately for FF/Safari
+            // Add a small delay for mobile browsers to load voices
+            setTimeout(populateVoices, 100);
 
             ttsLangSelect.addEventListener('change', () => {
                 populateVoices();
@@ -326,19 +325,25 @@
                 const text = ttsInput.value;
                 if (text !== '') {
                     const utterance = new SpeechSynthesisUtterance(text);
-                    
-                    // Voice Selection
-                    const selectedVoiceName = ttsVoiceSelect.value;
-                    const selectedVoice = voices.find(v => v.name === selectedVoiceName);
-                    if (selectedVoice) {
-                        utterance.voice = selectedVoice;
-                    }
-                    
-                    // It's crucial to set the lang on the utterance as well
-                    utterance.lang = ttsLangSelect.value;
+                    utterance.lang = ttsLangSelect.value; // CRITICAL: Always set lang
                     utterance.rate = ttsRate.value;
 
-                    // Event handling for button state
+                    // Voice Selection Logic - IMPROVED
+                    const selectedVoiceName = ttsVoiceSelect.value;
+                    if (selectedVoiceName !== 'default') {
+                        const selectedVoice = voices.find(v => v.name === selectedVoiceName);
+                        if (selectedVoice) utterance.voice = selectedVoice;
+                    } 
+
+                    // Check if we are trying Persian but have no Persian voices
+                    if (ttsLangSelect.value === 'fa-IR') {
+                         const hasPersian = voices.some(v => v.lang.includes('fa'));
+                         if (!hasPersian) {
+                             showToast("No Persian voice found. Trying default...");
+                             // We still let it try, as some OSes handle lang codes without exposing voice objects
+                         }
+                    }
+
                     utterance.onstart = () => {
                         ttsSpeakBtn.innerHTML = `<svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Speaking...`;
                         ttsSpeakBtn.classList.add('opacity-75', 'cursor-not-allowed');
@@ -346,4 +351,214 @@
 
                     utterance.onend = () => {
                         resetSpeakButton();
-               
+                    };
+
+                    utterance.onerror = (e) => {
+                        console.error(e);
+                        resetSpeakButton();
+                        if (e.error !== 'interrupted' && e.error !== 'canceled') {
+                             showToast("Error: " + e.error);
+                        }
+                    };
+
+                    synth.speak(utterance);
+                } else {
+                    showToast("Please enter some text first.");
+                }
+            });
+
+            function resetSpeakButton() {
+                ttsSpeakBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg> Speak`;
+                ttsSpeakBtn.classList.remove('opacity-75', 'cursor-not-allowed');
+            }
+
+            ttsStopBtn.addEventListener('click', () => {
+                if (synth.speaking) {
+                    synth.cancel();
+                    resetSpeakButton();
+                }
+            });
+
+            ttsClearBtn.addEventListener('click', () => {
+                ttsInput.value = '';
+                ttsInput.focus();
+            });
+
+
+            // --- Speech to Text (STT) Logic (MOBILE FIXED) ---
+            const sttOutput = document.getElementById('stt-output');
+            const sttMicBtn = document.getElementById('stt-mic-btn');
+            const micRing = document.getElementById('mic-ring');
+            const micIcon = document.getElementById('mic-icon');
+            const stopIcon = document.getElementById('stop-icon');
+            const sttStatus = document.getElementById('stt-status');
+            const sttCopyBtn = document.getElementById('stt-copy-btn');
+            const sttLangBtns = document.querySelectorAll('.stt-lang-btn');
+            
+            let recognition;
+            let isRecording = false;
+            let currentSttLang = 'en-US';
+            let manualStop = false; // Flag to distinguish between error stops and user stops
+
+            // Check Browser Support
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+            if (SpeechRecognition) {
+                recognition = new SpeechRecognition();
+                // CRITICAL FIX FOR MOBILE: Set continuous to false
+                // Android often breaks if continuous is true. We will restart manually in onend.
+                recognition.continuous = false; 
+                recognition.interimResults = true;
+                recognition.maxAlternatives = 1;
+            } else {
+                sttStatus.textContent = "Your browser does not support speech recognition.";
+                sttStatus.classList.add('text-red-500');
+                sttMicBtn.disabled = true;
+                sttMicBtn.classList.add('bg-gray-400');
+            }
+
+            // Language Selection Logic for STT
+            sttLangBtns.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    if (isRecording) {
+                        manualStop = true;
+                        stopRecording();
+                    }
+                    
+                    // UI Update
+                    sttLangBtns.forEach(b => {
+                        b.classList.remove('bg-white', 'text-indigo-600', 'shadow-sm');
+                        b.classList.add('text-gray-500');
+                    });
+                    e.target.classList.add('bg-white', 'text-indigo-600', 'shadow-sm');
+                    e.target.classList.remove('text-gray-500');
+
+                    // Set Lang
+                    currentSttLang = e.target.getAttribute('data-lang');
+                    setDirection(sttOutput, currentSttLang);
+                    
+                    sttOutput.placeholder = currentSttLang === 'fa-IR' 
+                        ? "روی میکروفون ضربه بزنید و صحبت کنید..." 
+                        : "Tap the microphone and start speaking...";
+                });
+            });
+
+            setDirection(sttOutput, currentSttLang);
+
+            function startRecording() {
+                if (!recognition) return;
+                
+                manualStop = false;
+                recognition.lang = currentSttLang;
+                try {
+                    recognition.start();
+                    isRecording = true;
+                    updateRecordingUI(true);
+                } catch (e) {
+                    console.error("Start error:", e);
+                    // If already started, stop then start
+                    recognition.stop();
+                }
+            }
+
+            function stopRecording() {
+                if (!recognition) return;
+                manualStop = true;
+                recognition.stop();
+                isRecording = false;
+                updateRecordingUI(false);
+            }
+
+            function updateRecordingUI(recording) {
+                if (recording) {
+                    micRing.classList.remove('hidden');
+                    micIcon.classList.add('hidden');
+                    stopIcon.classList.remove('hidden');
+                    sttMicBtn.classList.remove('bg-indigo-600');
+                    sttMicBtn.classList.add('bg-red-500');
+                    sttStatus.textContent = currentSttLang === 'fa-IR' ? "در حال گوش دادن..." : "Listening...";
+                    sttStatus.classList.add('text-indigo-600', 'animate-pulse');
+                } else {
+                    micRing.classList.add('hidden');
+                    micIcon.classList.remove('hidden');
+                    stopIcon.classList.add('hidden');
+                    sttMicBtn.classList.add('bg-indigo-600');
+                    sttMicBtn.classList.remove('bg-red-500');
+                    sttStatus.textContent = "Ready to listen";
+                    sttStatus.classList.remove('text-indigo-600', 'animate-pulse');
+                }
+            }
+
+            sttMicBtn.addEventListener('click', () => {
+                if (isRecording) {
+                    stopRecording();
+                } else {
+                    startRecording();
+                }
+            });
+
+            if (recognition) {
+                recognition.onresult = (event) => {
+                    let finalTranscript = '';
+                    let interimTranscript = '';
+
+                    for (let i = event.resultIndex; i < event.results.length; ++i) {
+                        if (event.results[i].isFinal) {
+                            finalTranscript += event.results[i][0].transcript;
+                        } else {
+                            interimTranscript += event.results[i][0].transcript;
+                        }
+                    }
+
+                    // Append final results to the textarea
+                    if (finalTranscript) {
+                        sttOutput.value += (sttOutput.value ? ' ' : '') + finalTranscript;
+                        sttOutput.scrollTop = sttOutput.scrollHeight;
+                    }
+                };
+
+                recognition.onerror = (event) => {
+                    console.error("Recognition error: ", event.error);
+                    if (event.error === 'no-speech') {
+                        // Ignore no-speech, we will just restart in onend if not manualStop
+                        return;
+                    }
+                    if (event.error === 'not-allowed') {
+                        showToast("Microphone permission denied.");
+                        stopRecording();
+                    } else {
+                        // For other errors, we might stop
+                        // stopRecording();
+                    }
+                };
+
+                // Mimic continuous mode
+                recognition.onend = () => {
+                    if (!manualStop && isRecording) {
+                        // Restart if we didn't manually stop
+                        try {
+                            recognition.start();
+                        } catch(e) {
+                             // Sometimes browser prevents rapid restart
+                             setTimeout(() => {
+                                 if(!manualStop) recognition.start();
+                             }, 100);
+                        }
+                    } else {
+                        isRecording = false;
+                        updateRecordingUI(false);
+                    }
+                };
+            }
+
+            sttCopyBtn.addEventListener('click', () => {
+                sttOutput.select();
+                document.execCommand('copy');
+                window.getSelection().removeAllRanges();
+                showToast("Copied to clipboard!");
+            });
+
+        });
+    </script>
+</body>
+</html>
