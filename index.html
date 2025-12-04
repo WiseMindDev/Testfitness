@@ -1,941 +1,349 @@
-<!doctype html>
-<html lang="fa" dir="rtl">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>مربی هوشمند</title>
-    <link rel="shortcut icon" href="fav.png" type="image/x-icon" />
-
-    <!-- 1. Tailwind CSS CDN -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bilingual Speech Hub</title>
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Inter for English, Vazirmatn for Persian -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Vazirmatn:wght@300;400;600;700&display=swap" rel="stylesheet">
 
-    <!-- 2. Html2Canvas for downloading images -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-
-    <!-- 3. Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-
-    <!-- 4. Lalezar Font & Custom Styles -->
     <style>
-      @import url("https://fonts.googleapis.com/css2?family=Lalezar&display=swap");
-
-      body {
-        font-family: "Lalezar", cursive;
-        background-color: #f1f5f9; /* slate-100 */
-      }
-
-      /* Custom Fade Animation */
-      .fade-in {
-        animation: fadeIn 0.5s ease-in-out;
-      }
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-          transform: translateY(10px);
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
         }
-        to {
-          opacity: 1;
-          transform: translateY(0);
+        
+        /* Persian Font Class */
+        .font-persian {
+            font-family: 'Vazirmatn', sans-serif;
         }
-      }
 
-      /* Hide scrollbar for clean UI if needed */
-      .no-scrollbar::-webkit-scrollbar {
-        display: none;
-      }
-      .no-scrollbar {
-        -ms-overflow-style: none;
-        scrollbar-width: none;
-      }
+        /* Custom Scrollbar for Textareas */
+        textarea::-webkit-scrollbar {
+            width: 8px;
+        }
+        textarea::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        textarea::-webkit-scrollbar-thumb {
+            background: #d1d5db; 
+            border-radius: 4px;
+        }
+        textarea::-webkit-scrollbar-thumb:hover {
+            background: #9ca3af; 
+        }
 
-      /* Range Slider Styling */
-      input[type="range"] {
-        -webkit-appearance: none; /* Hides the slider so that custom slider can be made */
-        width: 100%; /* Specific width is required for Firefox. */
-        background: transparent; /* Otherwise white in Chrome */
-      }
+        /* Animation for Recording Pulse */
+        @keyframes pulse-ring {
+            0% { transform: scale(0.33); }
+            80%, 100% { opacity: 0; }
+        }
+        @keyframes pulse-dot {
+            0% { transform: scale(0.8); }
+            50% { transform: scale(1); }
+            100% { transform: scale(0.8); }
+        }
+        .recording-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            animation: pulse-ring 1.25s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+            background-color: rgba(239, 68, 68, 0.6); /* Red-500 */
+        }
+        .recording-dot {
+            animation: pulse-dot 1.25s cubic-bezier(0.455, 0.03, 0.515, 0.955) -0.4s infinite;
+        }
 
-      input[type="range"]::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        height: 24px;
-        width: 24px;
-        border-radius: 50%;
-        background: #059669; /* emerald-600 */
-        cursor: pointer;
-        margin-top: -8px; /* You need to specify a margin in Chrome, but in Firefox and IE it is automatic */
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-        border: 2px solid white;
-      }
-
-      /* Firefox */
-      input[type="range"]::-moz-range-thumb {
-        height: 24px;
-        width: 24px;
-        border-radius: 50%;
-        background: #059669;
-        cursor: pointer;
-        border: 2px solid white;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-      }
-
-      input[type="range"]::-webkit-slider-runnable-track {
-        width: 100%;
-        height: 8px;
-        cursor: pointer;
-        background: #e2e8f0; /* slate-200 */
-        border-radius: 8px;
-      }
-
-      input[type="range"]::-moz-range-track {
-        width: 100%;
-        height: 8px;
-        cursor: pointer;
-        background: #e2e8f0;
-        border-radius: 8px;
-      }
-
-      input[type="range"]:focus {
-        outline: none;
-      }
+        /* Hide Scrollbar on mobile but keep functionality */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
     </style>
-  </head>
-  <body class="text-slate-900 min-h-screen pb-10">
-    <!-- HEADER -->
-    <header class="bg-slate-900 text-white p-6 shadow-lg sticky top-0 z-50">
-      <div class="max-w-4xl mx-auto flex items-center justify-between">
-        <div class="flex items-center gap-3">
-          <i data-lucide="dumbbell" class="text-emerald-400 w-8 h-8"></i>
-          <h1 class="text-3xl mt-1 tracking-wide">مربی هوشمند</h1>
-        </div>
-        <p class="text-slate-400 hidden sm:block text-lg mt-1">
-          ساخت برنامه تمرینی حرفه‌ای
-        </p>
-      </div>
-    </header>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100">
 
-    <main class="max-w-4xl mx-auto p-4 sm:p-6">
-      <!-- INPUT SECTION (Visible by default) -->
-      <div
-        id="input-section"
-        class="bg-white rounded-2xl shadow-xl p-6 sm:p-8 fade-in"
-      >
-        <div class="mb-8 text-center">
-          <h2 class="text-2xl text-slate-800 mb-2">طراحی برنامه اختصاصی شما</h2>
-          <p class="text-slate-500 text-lg">
-            برای دریافت برنامه تمرینی هایپرتروفی (عضله سازی)، مشخصات زیر را
-            انتخاب کنید.
-          </p>
-        </div>
-
-        <!-- Experience Level -->
-        <div class="mb-6">
-          <h3 class="flex items-center gap-2 text-xl text-slate-800 mb-3">
-            <i data-lucide="activity" class="text-emerald-600 w-6 h-6 ml-1"></i>
-            سطح تجربه
-          </h3>
-          <div class="grid grid-cols-2 sm:grid-cols-3 gap-3" id="level-options">
-            <!-- Buttons injected by JS -->
-          </div>
-        </div>
-
-        <!-- Split Type -->
-        <div class="mb-6">
-          <h3 class="flex items-center gap-2 text-xl text-slate-800 mb-3">
-            <i data-lucide="calendar" class="text-emerald-600 w-6 h-6 ml-1"></i>
-            نوع تقسیم تمرین (Split)
-          </h3>
-          <div
-            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3"
-            id="split-options"
-          >
-            <!-- Buttons injected by JS -->
-          </div>
-        </div>
-
-        <!-- NEW: Days Slider -->
-        <div class="mb-6">
-          <div class="flex justify-between items-end mb-4">
-            <h3 class="flex items-center gap-2 text-xl text-slate-800">
-              <i data-lucide="clock" class="text-emerald-600 w-6 h-6 ml-1"></i>
-              تعداد روزهای تمرین در هفته
-            </h3>
-            <span
-              id="days-display"
-              class="text-emerald-700 font-bold text-xl bg-emerald-50 px-4 py-1 rounded-xl border border-emerald-200 shadow-sm min-w-[80px] text-center"
-              >۴ روز</span
-            >
-          </div>
-          <div class="relative w-full h-12 flex items-center">
-            <input
-              type="range"
-              min="2"
-              max="6"
-              value="4"
-              id="days-slider"
-              class="w-full"
-              oninput="updateDays(this.value)"
-            />
-          </div>
-          <div
-            class="flex justify-between text-slate-400 text-sm px-1 font-sans"
-          >
-            <span>کم (2)</span>
-            <span>زیاد (6)</span>
-          </div>
-        </div>
-
-        <!-- Info Box -->
-        <div
-          class="mb-6 bg-blue-50 text-blue-800 p-4 rounded-xl flex gap-3 items-start border border-blue-100"
-        >
-          <i data-lucide="info" class="w-5 h-5 mt-1 shrink-0 ml-2"></i>
-          <div>
-            <strong class="block mb-2 text-lg"
-              >راهنمای انتخاب سیستم تمرینی:</strong
-            >
-            <ul class="list-disc pr-4 space-y-1 text-base opacity-90">
-              <li>کل بدن: برای تعداد روزهای کم (۲-۳ روز) پیشنهاد می‌شود.</li>
-              <li>بالا/پایین تنه: تعادل عالی، مناسب برای ۴ روز.</li>
-              <li>فشار/کشش/پا (PPL): محبوب‌ترین سیستم برای ۳ یا ۶ روز.</li>
-              <li>تک عضله‌ای: تمرکز بالا روی هر عضله، مناسب برای ۵ روز.</li>
-            </ul>
-          </div>
-        </div>
-
-        <!-- Equipment -->
-        <div class="mb-6">
-          <h3 class="flex items-center gap-2 text-xl text-slate-800 mb-3">
-            <i data-lucide="dumbbell" class="text-emerald-600 w-6 h-6 ml-1"></i>
-            تجهیزات در دسترس
-          </h3>
-          <div
-            class="grid grid-cols-1 sm:grid-cols-3 gap-3"
-            id="equipment-options"
-          >
-            <!-- Buttons injected by JS -->
-          </div>
-        </div>
-
-        <button
-          id="generate-btn"
-          class="w-full mt-6 bg-emerald-600 hover:bg-emerald-700 text-white text-xl py-4 px-6 rounded-xl shadow-lg transform transition active:scale-95 flex items-center justify-center gap-3"
-        >
-          <span id="btn-text">ساخت برنامه تمرینی</span>
-          <i data-lucide="check-circle" id="btn-icon"></i>
-        </button>
-      </div>
-
-      <!-- RESULTS SECTION (Hidden by default) -->
-      <div id="result-section" class="hidden fade-in">
-        <!-- Control Buttons (Not downloaded) -->
-        <div
-          class="bg-white p-4 rounded-xl shadow-sm mb-6 border border-slate-200 flex flex-col sm:flex-row justify-between items-center gap-4"
-        >
-          <div class="text-slate-600 text-lg flex items-center">
-            <span class="text-emerald-600 ml-2 font-bold text-2xl">✓</span>
-            برنامه شما آماده است!
-          </div>
-          <div class="flex gap-2 w-full sm:w-auto">
-            <button
-              onclick="resetApp()"
-              class="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 py-2 px-6 rounded-lg text-lg transition-colors border border-slate-300"
-            >
-              <i data-lucide="refresh-cw" class="w-4 h-4 ml-1"></i> ساخت مجدد
-            </button>
-            <button
-              id="download-btn"
-              onclick="downloadImage()"
-              class="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white py-2 px-6 rounded-lg text-lg transition-colors shadow-md shadow-emerald-200"
-            >
-              <i data-lucide="download" class="w-4 h-4 ml-1"></i> دانلود تصویر
-            </button>
-          </div>
-        </div>
-
-        <!-- Printable Area (This part gets captured) -->
-        <div
-          id="printable-area"
-          class="p-4 sm:p-8 bg-slate-100 rounded-xl min-h-[600px]"
-        >
-          <div class="mb-8 border-b-2 border-slate-200 pb-4">
-            <div class="flex justify-between items-end">
-              <div>
-                <h2 class="text-3xl text-emerald-800 mb-2">
-                  برنامه اختصاصی شما
-                </h2>
-                <div class="flex gap-2 text-slate-500 text-lg" id="result-tags">
-                  <!-- Tags injected here -->
+    <!-- Main Container -->
+    <div class="bg-white w-full max-w-2xl rounded-2xl shadow-xl overflow-hidden border border-gray-100 flex flex-col h-[85vh] md:h-auto md:min-h-[600px]">
+        
+        <!-- Header -->
+        <header class="bg-indigo-600 p-6 text-white text-center shadow-md shrink-0 relative">
+            <h1 class="text-2xl font-bold tracking-tight">Speech Hub</h1>
+            <p class="text-indigo-200 text-sm mt-1">Text-to-Speech & Speech-to-Text</p>
+            
+            <!-- Info Icon/Tooltip -->
+            <div class="absolute top-4 right-4 group">
+                <button class="text-indigo-200 hover:text-white transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                </button>
+                <div class="absolute right-0 mt-2 w-48 bg-gray-800 text-white text-xs rounded p-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                    Browser support for Persian voices varies by OS.
                 </div>
-              </div>
-              <div class="opacity-50 hidden sm:block">
-                <i data-lucide="dumbbell" class="w-16 h-16 text-slate-300"></i>
-              </div>
             </div>
-          </div>
+        </header>
 
-          <!-- Workout Container -->
-          <div id="workout-container" class="space-y-6">
-            <!-- Cards injected here -->
-          </div>
-
-          <!-- Footer Tips -->
-          <div
-            class="mt-8 bg-slate-800 text-slate-300 p-6 rounded-xl relative overflow-hidden"
-          >
-            <div
-              class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 to-blue-500"
-            ></div>
-            <h4 class="text-white text-xl mb-3 flex items-center gap-2">
-              <i data-lucide="info" class="text-emerald-400 w-5 h-5"></i> نکات
-              مربی
-            </h4>
-            <ul
-              class="space-y-2 list-disc list-inside text-lg leading-relaxed opacity-90"
-            >
-              <li>
-                <strong>افزایش بار تدریجی:</strong> هر هفته سعی کنید یا وزنه را
-                سنگین‌تر کنید یا تکرار بیشتری انجام دهید.
-              </li>
-              <li>
-                <strong>استراحت:</strong> بین حرکات سنگین ۹۰-۱۲۰ ثانیه و حرکات
-                سبک ۶۰-۹۰ ثانیه استراحت کنید.
-              </li>
-              <li>
-                <strong>تغذیه:</strong> برای عضله‌سازی، مصرف پروتئین کافی (۱.۶
-                تا ۲.۲ گرم به ازای هر کیلوگرم وزن بدن) ضروری است.
-              </li>
-            </ul>
-            <div
-              class="mt-4 text-center text-slate-500 text-sm dir-ltr font-sans"
-            >
-              توسعه یافته توسط نیما شهریاری
-            </div>
-          </div>
+        <!-- Tabs -->
+        <div class="flex border-b border-gray-200 shrink-0">
+            <button id="tab-tts" class="flex-1 py-4 text-sm font-medium text-indigo-600 border-b-2 border-indigo-600 bg-indigo-50 transition-colors flex items-center justify-center gap-2 focus:outline-none">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+                Speak (TTS)
+            </button>
+            <button id="tab-stt" class="flex-1 py-4 text-sm font-medium text-gray-500 hover:text-indigo-600 transition-colors flex items-center justify-center gap-2 focus:outline-none">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                Listen (STT)
+            </button>
         </div>
-      </div>
-    </main>
 
-    <!-- JAVASCRIPT LOGIC -->
+        <!-- Content Area -->
+        <div class="flex-1 relative overflow-hidden">
+            
+            <!-- TTS Section -->
+            <section id="content-tts" class="absolute inset-0 p-6 flex flex-col gap-4 overflow-y-auto transition-transform duration-300">
+                <!-- Controls Row -->
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <div class="flex-1">
+                        <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Language</label>
+                        <select id="tts-lang-select" class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2.5">
+                            <option value="en-US">English (US)</option>
+                            <option value="fa-IR">Persian (Farsi)</option>
+                        </select>
+                    </div>
+                    <div class="flex-1">
+                        <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Voice</label>
+                        <select id="tts-voice-select" class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2.5">
+                            <option disabled selected>Loading voices...</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Text Area -->
+                <div class="flex-1 flex flex-col min-h-[200px]">
+                    <textarea id="tts-input" 
+                        class="flex-1 w-full p-4 text-gray-700 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none text-lg transition-all"
+                        placeholder="Type something here to hear it spoken..."
+                    ></textarea>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex items-center gap-3 mt-auto pt-2">
+                    <button id="tts-speak-btn" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-lg shadow-sm transition-all transform active:scale-95 flex items-center justify-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+                        Speak
+                    </button>
+                    <button id="tts-stop-btn" class="bg-red-50 text-red-600 hover:bg-red-100 border border-red-200 font-semibold py-3 px-4 rounded-lg transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/></svg>
+                    </button>
+                    <button id="tts-clear-btn" class="bg-gray-50 text-gray-600 hover:bg-gray-100 border border-gray-200 font-semibold py-3 px-4 rounded-lg transition-colors" title="Clear Text">
+                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                    </button>
+                </div>
+                
+                <!-- Rate Slider -->
+                <div class="flex items-center gap-4 px-2">
+                    <span class="text-xs text-gray-400 font-medium w-12">Speed</span>
+                    <input id="tts-rate" type="range" min="0.5" max="2" value="1" step="0.1" class="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                </div>
+            </section>
+
+            <!-- STT Section -->
+            <section id="content-stt" class="absolute inset-0 p-6 flex flex-col gap-4 overflow-y-auto translate-x-full transition-transform duration-300">
+                
+                <!-- Language Selector -->
+                <div class="flex justify-center mb-2">
+                    <div class="bg-gray-100 p-1 rounded-lg flex">
+                        <button class="stt-lang-btn px-4 py-1.5 rounded-md text-sm font-medium bg-white text-indigo-600 shadow-sm transition-all" data-lang="en-US">English</button>
+                        <button class="stt-lang-btn px-4 py-1.5 rounded-md text-sm font-medium text-gray-500 hover:text-gray-700 transition-all" data-lang="fa-IR">Persian</button>
+                    </div>
+                </div>
+
+                <!-- Result Area -->
+                <div class="flex-1 relative group">
+                    <textarea id="stt-output" readonly 
+                        class="w-full h-full p-6 text-gray-700 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none resize-none text-xl leading-relaxed"
+                        placeholder="Tap the microphone and start speaking..."
+                    ></textarea>
+                    
+                    <!-- Copy Button -->
+                    <button id="stt-copy-btn" class="absolute top-4 right-4 bg-white/80 backdrop-blur-sm p-2 rounded-lg text-gray-500 hover:text-indigo-600 shadow-sm opacity-0 group-hover:opacity-100 transition-opacity border border-gray-100">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                    </button>
+                </div>
+
+                <!-- Status Text -->
+                <div id="stt-status" class="text-center text-sm text-gray-400 h-5 font-medium">
+                    Ready to listen
+                </div>
+
+                <!-- Mic Button -->
+                <div class="flex justify-center pb-4">
+                    <button id="stt-mic-btn" class="relative w-20 h-20 rounded-full bg-indigo-600 text-white shadow-lg shadow-indigo-200 flex items-center justify-center transition-transform transform hover:scale-105 active:scale-95 focus:outline-none z-10">
+                        <div id="mic-ring" class="recording-ring hidden"></div>
+                        <svg id="mic-icon" class="relative z-10" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+                        
+                        <!-- Stop Icon (hidden initially) -->
+                        <svg id="stop-icon" class="relative z-10 hidden" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12" rx="2" ry="2" /></svg>
+                    </button>
+                </div>
+
+            </section>
+
+        </div>
+
+        <!-- Toast Notification -->
+        <div id="toast" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-sm py-2 px-4 rounded-full shadow-lg opacity-0 transition-opacity pointer-events-none z-50">
+            Notification
+        </div>
+
+    </div>
+
     <script>
-      // --- DATA ---
-      const exerciseDatabase = [
-        // CHEST
-        {
-          id: "c1",
-          name: "پرس سینه هالتر",
-          muscle: "سینه",
-          type: "چند مفصلی",
-          equipment: ["باشگاه", "هالتر"],
-          tier: "S",
-        },
-        {
-          id: "c2",
-          name: "پرس بالا سینه دمبل",
-          muscle: "سینه",
-          type: "چند مفصلی",
-          equipment: ["باشگاه", "دمبل"],
-          tier: "A",
-        },
-        {
-          id: "c3",
-          name: "قفسه سینه دمبل",
-          muscle: "سینه",
-          type: "تک مفصلی",
-          equipment: ["باشگاه", "دمبل"],
-          tier: "B",
-        },
-        {
-          id: "c4",
-          name: "شنا سوئدی",
-          muscle: "سینه",
-          type: "چند مفصلی",
-          equipment: ["وزن بدن", "باشگاه", "دمبل"],
-          tier: "A",
-        },
-        {
-          id: "c5",
-          name: "کراس اور",
-          muscle: "سینه",
-          type: "تک مفصلی",
-          equipment: ["باشگاه"],
-          tier: "B",
-        },
-        {
-          id: "c6",
-          name: "پارالل",
-          muscle: "سینه",
-          type: "چند مفصلی",
-          equipment: ["باشگاه", "وزن بدن"],
-          tier: "A",
-        },
-        // BACK
-        {
-          id: "b1",
-          name: "ددلیفت",
-          muscle: "زیر بغل",
-          type: "چند مفصلی",
-          equipment: ["باشگاه", "هالتر"],
-          tier: "S",
-        },
-        {
-          id: "b2",
-          name: "بارفیکس",
-          muscle: "زیر بغل",
-          type: "چند مفصلی",
-          equipment: ["وزن بدن", "باشگاه"],
-          tier: "S",
-        },
-        {
-          id: "b3",
-          name: "زیربغل خم هالتر",
-          muscle: "زیر بغل",
-          type: "چند مفصلی",
-          equipment: ["باشگاه", "هالتر"],
-          tier: "A",
-        },
-        {
-          id: "b4",
-          name: "زیربغل سیم‌کش",
-          muscle: "زیر بغل",
-          type: "چند مفصلی",
-          equipment: ["باشگاه"],
-          tier: "B",
-        },
-        {
-          id: "b5",
-          name: "زیربغل تک دمبل خم",
-          muscle: "زیر بغل",
-          type: "چند مفصلی",
-          equipment: ["باشگاه", "دمبل"],
-          tier: "A",
-        },
-        {
-          id: "b6",
-          name: "فیس پول",
-          muscle: "زیر بغل",
-          type: "تک مفصلی",
-          equipment: ["باشگاه"],
-          tier: "B",
-        },
-        // LEGS
-        {
-          id: "l1",
-          name: "اسکات پا هالتر",
-          muscle: "چهارسر ران",
-          type: "چند مفصلی",
-          equipment: ["باشگاه", "هالتر"],
-          tier: "S",
-        },
-        {
-          id: "l2",
-          name: "پرس پا",
-          muscle: "چهارسر ران",
-          type: "چند مفصلی",
-          equipment: ["باشگاه"],
-          tier: "A",
-        },
-        {
-          id: "l3",
-          name: "اسکات گابلت",
-          muscle: "چهارسر ران",
-          type: "چند مفصلی",
-          equipment: ["باشگاه", "دمبل"],
-          tier: "B",
-        },
-        {
-          id: "l4",
-          name: "لانگز (قیچی)",
-          muscle: "چهارسر ران",
-          type: "چند مفصلی",
-          equipment: ["باشگاه", "دمبل", "وزن بدن"],
-          tier: "B",
-        },
-        {
-          id: "l5",
-          name: "جلو ران دستگاه",
-          muscle: "چهارسر ران",
-          type: "تک مفصلی",
-          equipment: ["باشگاه"],
-          tier: "C",
-        },
-        {
-          id: "h1",
-          name: "ددلیفت رومانیایی",
-          muscle: "پشت ران",
-          type: "چند مفصلی",
-          equipment: ["باشگاه", "هالتر", "دمبل"],
-          tier: "S",
-        },
-        {
-          id: "h2",
-          name: "پشت ران دستگاه",
-          muscle: "پشت ران",
-          type: "تک مفصلی",
-          equipment: ["باشگاه"],
-          tier: "B",
-        },
-        {
-          id: "h3",
-          name: "پل باسن",
-          muscle: "باسن",
-          type: "چند مفصلی",
-          equipment: ["وزن بدن", "باشگاه", "دمبل"],
-          tier: "A",
-        },
-        {
-          id: "h4",
-          name: "اسکات بلغاری",
-          muscle: "پا",
-          type: "چند مفصلی",
-          equipment: ["دمبل", "باشگاه", "وزن بدن"],
-          tier: "A",
-        },
-        // SHOULDERS
-        {
-          id: "s1",
-          name: "پرس سرشانه هالتر",
-          muscle: "سرشانه",
-          type: "چند مفصلی",
-          equipment: ["باشگاه", "هالتر"],
-          tier: "S",
-        },
-        {
-          id: "s2",
-          name: "پرس سرشانه دمبل",
-          muscle: "سرشانه",
-          type: "چند مفصلی",
-          equipment: ["باشگاه", "دمبل"],
-          tier: "A",
-        },
-        {
-          id: "s3",
-          name: "نشر جانب",
-          muscle: "سرشانه",
-          type: "تک مفصلی",
-          equipment: ["باشگاه", "دمبل"],
-          tier: "A",
-        },
-        {
-          id: "s4",
-          name: "نشر خم دمبل",
-          muscle: "سرشانه",
-          type: "تک مفصلی",
-          equipment: ["باشگاه", "دمبل"],
-          tier: "B",
-        },
-        // ARMS
-        {
-          id: "bi1",
-          name: "جلو بازو هالتر ایستاده",
-          muscle: "جلو بازو",
-          type: "تک مفصلی",
-          equipment: ["باشگاه", "هالتر"],
-          tier: "A",
-        },
-        {
-          id: "bi2",
-          name: "جلو بازو دمبل",
-          muscle: "جلو بازو",
-          type: "تک مفصلی",
-          equipment: ["باشگاه", "دمبل"],
-          tier: "A",
-        },
-        {
-          id: "bi3",
-          name: "جلو بازو چکشی",
-          muscle: "جلو بازو",
-          type: "تک مفصلی",
-          equipment: ["باشگاه", "دمبل"],
-          tier: "B",
-        },
-        {
-          id: "tri1",
-          name: "پشت بازو هالتر خوابیده",
-          muscle: "پشت بازو",
-          type: "تک مفصلی",
-          equipment: ["باشگاه", "هالتر", "دمبل"],
-          tier: "A",
-        },
-        {
-          id: "tri2",
-          name: "پشت بازو سیم‌کش",
-          muscle: "پشت بازو",
-          type: "تک مفصلی",
-          equipment: ["باشگاه"],
-          tier: "A",
-        },
-        {
-          id: "tri3",
-          name: "پرس سینه دست جمع",
-          muscle: "پشت بازو",
-          type: "چند مفصلی",
-          equipment: ["باشگاه", "هالتر"],
-          tier: "A",
-        },
-        // ABS
-        {
-          id: "ab1",
-          name: "زیرشکم خلبانی",
-          muscle: "شکم",
-          type: "تک مفصلی",
-          equipment: ["باشگاه", "وزن بدن"],
-          tier: "A",
-        },
-        {
-          id: "ab2",
-          name: "پلانک",
-          muscle: "شکم",
-          type: "تک مفصلی",
-          equipment: ["وزن بدن", "باشگاه", "دمبل"],
-          tier: "B",
-        },
-        {
-          id: "ab3",
-          name: "کرانچ سیم‌کش",
-          muscle: "شکم",
-          type: "تک مفصلی",
-          equipment: ["باشگاه"],
-          tier: "A",
-        },
-      ];
+        /**
+         * Core Application Logic
+         */
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // --- UI State & Tab Switching ---
+            const tabTts = document.getElementById('tab-tts');
+            const tabStt = document.getElementById('tab-stt');
+            const contentTts = document.getElementById('content-tts');
+            const contentStt = document.getElementById('content-stt');
 
-      // --- STATE ---
-      let preferences = {
-        level: "متوسط",
-        split: "فشار / کشش / پا",
-        equipmentSelection: "دسترسی کامل باشگاه",
-        days: 4, // Default days
-      };
-
-      const equipmentMapping = {
-        "دسترسی کامل باشگاه": ["باشگاه", "هالتر", "دمبل", "وزن بدن"],
-        "فقط دمبل": ["دمبل", "وزن بدن"],
-        "فقط وزن بدن": ["وزن بدن"],
-      };
-
-      // --- RENDER INPUTS ---
-      const optionsData = {
-        level: ["مبتدی", "متوسط", "پیشرفته"],
-        split: [
-          "کل بدن",
-          "بالا تنه / پایین تنه",
-          "فشار / کشش / پا",
-          "تک عضله‌ای",
-        ],
-        equipment: ["دسترسی کامل باشگاه", "فقط دمبل", "فقط وزن بدن"],
-      };
-
-      function renderOptions(containerId, category, key) {
-        const container = document.getElementById(containerId);
-        container.innerHTML = optionsData[category]
-          .map(
-            (opt) => `
-                <button 
-                    onclick="selectOption('${key}', '${opt}')"
-                    class="p-3 rounded-xl text-lg transition-all duration-200 border-2 ${
-                      preferences[key] === opt
-                        ? "border-emerald-500 bg-emerald-50 text-emerald-700 shadow-sm"
-                        : "border-slate-200 bg-white text-slate-600 hover:border-emerald-200 hover:bg-slate-50"
-                    }"
-                >${opt}</button>
-            `
-          )
-          .join("");
-      }
-
-      function selectOption(key, value) {
-        preferences[key] = value;
-        renderAllInputs();
-      }
-
-      // New function to update days slider
-      function updateDays(val) {
-        const days = parseInt(val);
-        preferences.days = days;
-        document.getElementById("days-display").innerText = days + " روز";
-      }
-
-      function renderAllInputs() {
-        renderOptions("level-options", "level", "level");
-        renderOptions("split-options", "split", "split");
-        renderOptions("equipment-options", "equipment", "equipmentSelection");
-      }
-
-      // --- GENERATION LOGIC ---
-      document.getElementById("generate-btn").addEventListener("click", () => {
-        const btn = document.getElementById("generate-btn");
-        const btnText = document.getElementById("btn-text");
-        const btnIcon = document.getElementById("btn-icon");
-
-        // Loading State
-        btnText.textContent = "در حال پردازش...";
-        btn.disabled = true;
-        btn.classList.add("opacity-75", "cursor-not-allowed");
-
-        // Simulate processing
-        setTimeout(() => {
-          generateWorkoutPlan();
-
-          // Switch Views
-          document.getElementById("input-section").classList.add("hidden");
-          document.getElementById("result-section").classList.remove("hidden");
-          window.scrollTo({ top: 0, behavior: "smooth" });
-
-          // Reset Button
-          btnText.textContent = "ساخت برنامه تمرینی";
-          btn.disabled = false;
-          btn.classList.remove("opacity-75", "cursor-not-allowed");
-        }, 800);
-      });
-
-      function generateWorkoutPlan() {
-        const equipment = equipmentMapping[preferences.equipmentSelection];
-        const { split, level, days } = preferences;
-        let schedule = [];
-
-        // Helper functions
-        const getEx = (muscle, count, type = null) => {
-          let pool = exerciseDatabase.filter(
-            (e) =>
-              (e.muscle === muscle ||
-                (muscle === "پا" &&
-                  (e.muscle === "چهارسر ران" ||
-                    e.muscle === "پشت ران" ||
-                    e.muscle === "باسن"))) &&
-              e.equipment.some((req) => equipment.includes(req))
-          );
-          if (type) pool = pool.filter((e) => e.type === type);
-          return pool.sort(() => 0.5 - Math.random()).slice(0, count);
-        };
-
-        // Define Modules based on split (Function to generate exercises for that session)
-        let modules = [];
-
-        if (split === "کل بدن") {
-          modules = [
-            () => ({
-              title: "فول بادی",
-              exercises: [
-                ...getEx("چهارسر ران", 1),
-                ...getEx("پشت ران", 1),
-                ...getEx("سینه", 1),
-                ...getEx("زیر بغل", 1),
-                ...getEx("سرشانه", 1),
-                ...getEx("شکم", 1),
-              ],
-            }),
-          ];
-        } else if (split === "بالا تنه / پایین تنه") {
-          modules = [
-            () => ({
-              title: "بالا تنه",
-              exercises: [
-                ...getEx("سینه", 2),
-                ...getEx("زیر بغل", 2),
-                ...getEx("سرشانه", 1),
-                ...getEx("پشت بازو", 1),
-                ...getEx("جلو بازو", 1),
-              ],
-            }),
-            () => ({
-              title: "پایین تنه",
-              exercises: [
-                ...getEx("چهارسر ران", 2),
-                ...getEx("پشت ران", 2),
-                ...getEx("باسن", 1),
-                ...getEx("شکم", 1),
-              ],
-            }),
-          ];
-        } else if (split === "فشار / کشش / پا") {
-          modules = [
-            () => ({
-              title: "فشار (سینه/سرشانه/پشت‌بازو)",
-              exercises: [
-                ...getEx("سینه", 2),
-                ...getEx("سرشانه", 2),
-                ...getEx("پشت بازو", 2),
-              ],
-            }),
-            () => ({
-              title: "کشش (زیربغل/جلوبازو)",
-              exercises: [
-                ...getEx("زیر بغل", 2),
-                ...getEx("زیر بغل", 1, "تک مفصلی"),
-                ...getEx("جلو بازو", 2),
-                ...getEx("سرشانه", 1),
-              ],
-            }),
-            () => ({
-              title: "پا (ران/باسن)",
-              exercises: [
-                ...getEx("چهارسر ران", 2),
-                ...getEx("پشت ران", 2),
-                ...getEx("باسن", 1),
-                ...getEx("شکم", 1),
-              ],
-            }),
-          ];
-        } else {
-          // Bro Split (5 parts)
-          modules = [
-            () => ({ title: "عضلات سینه", exercises: getEx("سینه", 4) }),
-            () => ({ title: "عضلات زیربغل", exercises: getEx("زیر بغل", 5) }),
-            () => ({
-              title: "عضلات پا",
-              exercises: [...getEx("چهارسر ران", 3), ...getEx("پشت ران", 2)],
-            }),
-            () => ({ title: "عضلات سرشانه", exercises: getEx("سرشانه", 4) }),
-            () => ({
-              title: "عضلات دست",
-              exercises: [...getEx("جلو بازو", 3), ...getEx("پشت بازو", 3)],
-            }),
-          ];
-        }
-
-        // Generate Schedule based on Days Slider
-        // We rotate through the modules using modulo operator
-        for (let i = 0; i < days; i++) {
-          const moduleIndex = i % modules.length;
-          const sessionData = modules[moduleIndex]();
-
-          schedule.push({
-            day: `جلسه ${i + 1}`,
-            title: sessionData.title,
-            exercises: sessionData.exercises,
-          });
-        }
-
-        // Render Results
-        renderResults(schedule);
-      }
-
-      function renderResults(schedule) {
-        // Update Tags
-        document.getElementById("result-tags").innerHTML = `
-                <span class="bg-white px-3 py-1 rounded-lg border border-slate-200 shadow-sm text-slate-700">${preferences.level}</span>
-                <span class="bg-white px-3 py-1 rounded-lg border border-slate-200 shadow-sm text-slate-700">${preferences.split}</span>
-                <span class="bg-emerald-50 px-3 py-1 rounded-lg border border-emerald-200 shadow-sm text-emerald-700">${preferences.days} روز در هفته</span>
-            `;
-
-        // Build Cards HTML
-        const container = document.getElementById("workout-container");
-        container.innerHTML = schedule
-          .map((day, idx) => {
-            // Generate Exercises List
-            let exercisesHtml = "";
-            if (day.exercises.length > 0) {
-              exercisesHtml = day.exercises
-                .map((ex, i) => {
-                  const vol =
-                    preferences.level === "مبتدی" && ex.type === "چند مفصلی"
-                      ? "۳ ست × ۸-۱۰ تکرار"
-                      : preferences.level === "مبتدی"
-                        ? "۲ ست × ۱۲-۱۵ تکرار"
-                        : preferences.level === "متوسط" &&
-                            ex.type === "چند مفصلی"
-                          ? "۴ ست × ۶-۸ تکرار"
-                          : preferences.level === "متوسط"
-                            ? "۳ ست × ۱۰-۱۲ تکرار"
-                            : ex.type === "چند مفصلی"
-                              ? "۵ ست × ۵ تکرار"
-                              : "۴ ست × ۸-۱۲ تکرار";
-
-                  const badgeColor =
-                    ex.type === "چند مفصلی"
-                      ? "bg-amber-100 text-amber-800"
-                      : "bg-blue-100 text-blue-800";
-
-                  return `
-                        <div class="p-4 flex items-start gap-4 hover:bg-slate-50 border-b border-slate-100 last:border-0">
-                            <div class="mt-1">
-                                <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center pt-1 text-lg font-bold">
-                                    ${i + 1}
-                                </div>
-                            </div>
-                            <div class="flex-1">
-                                <div class="flex justify-between items-start">
-                                    <h5 class="text-lg text-slate-800 font-bold">${ex.name}</h5>
-                                    <span class="px-2 py-1 rounded text-xs font-bold ${badgeColor}">${ex.type}</span>
-                                </div>
-                                <p class="text-slate-500 mt-1 flex items-center gap-2 text-base">
-                                    <span class="text-slate-700 font-medium">${vol}</span>
-                                    <span class="text-slate-300">•</span>
-                                    <span>${ex.muscle}</span>
-                                </p>
-                            </div>
-                        </div>`;
-                })
-                .join("");
-            } else {
-              exercisesHtml = `<div class="p-8 text-center text-slate-500 italic">هیچ تمرینی یافت نشد.</div>`;
+            function switchTab(mode) {
+                if (mode === 'tts') {
+                    // Activate TTS
+                    tabTts.className = "flex-1 py-4 text-sm font-medium text-indigo-600 border-b-2 border-indigo-600 bg-indigo-50 transition-colors flex items-center justify-center gap-2 focus:outline-none";
+                    tabStt.className = "flex-1 py-4 text-sm font-medium text-gray-500 hover:text-indigo-600 transition-colors flex items-center justify-center gap-2 focus:outline-none";
+                    contentTts.style.transform = "translateX(0)";
+                    contentStt.style.transform = "translateX(100%)";
+                } else {
+                    // Activate STT
+                    tabStt.className = "flex-1 py-4 text-sm font-medium text-indigo-600 border-b-2 border-indigo-600 bg-indigo-50 transition-colors flex items-center justify-center gap-2 focus:outline-none";
+                    tabTts.className = "flex-1 py-4 text-sm font-medium text-gray-500 hover:text-indigo-600 transition-colors flex items-center justify-center gap-2 focus:outline-none";
+                    contentTts.style.transform = "translateX(-100%)";
+                    contentStt.style.transform = "translateX(0)";
+                }
             }
 
-            // Return Card HTML
-            return `
-                <div class="bg-white rounded-xl shadow-md border border-slate-200 overflow-hidden mb-6">
-                    <div class="bg-slate-50 p-4 flex items-center justify-between border-b border-slate-100">
-                        <div class="flex flex-col gap-1">
-                            <h4 class="text-base text-emerald-600 font-bold">${day.day}</h4>
-                            <h3 class="text-xl text-slate-800 font-bold">${day.title}</h3>
-                        </div>
-                    </div>
-                    <div class="divide-y divide-slate-100">
-                        ${exercisesHtml}
-                    </div>
-                </div>`;
-          })
-          .join("");
+            tabTts.addEventListener('click', () => switchTab('tts'));
+            tabStt.addEventListener('click', () => switchTab('stt'));
 
-        lucide.createIcons(); // Refresh icons
-      }
+            // --- Utilities ---
+            function showToast(message) {
+                const toast = document.getElementById('toast');
+                toast.textContent = message;
+                toast.classList.remove('opacity-0');
+                setTimeout(() => {
+                    toast.classList.add('opacity-0');
+                }, 2500);
+            }
 
-      // --- UTILS ---
-      function resetApp() {
-        document.getElementById("result-section").classList.add("hidden");
-        document.getElementById("input-section").classList.remove("hidden");
-        document.getElementById("workout-container").innerHTML = "";
-      }
+            function setDirection(element, lang) {
+                if (lang.startsWith('fa')) {
+                    element.setAttribute('dir', 'rtl');
+                    element.classList.add('font-persian');
+                    element.classList.remove('text-left');
+                    element.classList.add('text-right');
+                } else {
+                    element.setAttribute('dir', 'ltr');
+                    element.classList.remove('font-persian');
+                    element.classList.add('text-left');
+                    element.classList.remove('text-right');
+                }
+            }
 
-      function downloadImage() {
-        const element = document.getElementById("printable-area");
-        const btn = document.getElementById("download-btn");
 
-        // UI Feedback
-        const originalContent = btn.innerHTML;
-        btn.innerHTML = `<i data-lucide="loader" class="animate-spin w-4 h-4 ml-1"></i> دانلود...`;
-        lucide.createIcons();
-        btn.disabled = true;
+            // --- Text to Speech (TTS) Logic ---
+            const synth = window.speechSynthesis;
+            const ttsLangSelect = document.getElementById('tts-lang-select');
+            const ttsVoiceSelect = document.getElementById('tts-voice-select');
+            const ttsInput = document.getElementById('tts-input');
+            const ttsSpeakBtn = document.getElementById('tts-speak-btn');
+            const ttsStopBtn = document.getElementById('tts-stop-btn');
+            const ttsClearBtn = document.getElementById('tts-clear-btn');
+            const ttsRate = document.getElementById('tts-rate');
 
-        html2canvas(element, {
-          scale: 2,
-          backgroundColor: "#f1f5f9", // matches bg-slate-100
-          useCORS: true,
-        })
-          .then((canvas) => {
-            const link = document.createElement("a");
-            link.download = `Barname-Tamrini-${new Date().toISOString().slice(0, 10)}.png`;
-            link.href = canvas.toDataURL("image/png");
-            link.click();
+            let voices = [];
 
-            // Reset UI
-            btn.innerHTML = originalContent;
-            btn.disabled = false;
-            lucide.createIcons();
-          })
-          .catch((err) => {
-            console.error(err);
-            alert("خطا در دانلود");
-            btn.innerHTML = originalContent;
-            btn.disabled = false;
-            lucide.createIcons();
-          });
-      }
+            function populateVoices() {
+                voices = synth.getVoices();
+                const selectedLang = ttsLangSelect.value;
+                ttsVoiceSelect.innerHTML = '';
 
-      // Init
-      renderAllInputs();
-      lucide.createIcons();
-    </script>
-  </body>
-</html>
+                // Filter voices based on selected language (lenient matching)
+                const langCode = selectedLang.split('-')[0]; // 'en' or 'fa'
+                
+                const filteredVoices = voices.filter(voice => 
+                    voice.lang.includes(langCode) || voice.lang.includes(selectedLang)
+                );
 
+                if (filteredVoices.length === 0) {
+                    const option = document.createElement('option');
+                    option.textContent = "Default Browser Voice";
+                    option.value = 'default';
+                    ttsVoiceSelect.appendChild(option);
+                } else {
+                    filteredVoices.forEach(voice => {
+                        const option = document.createElement('option');
+                        option.textContent = `${voice.name} (${voice.lang})`;
+                        option.value = voice.name; // Using name as ID usually safer across browsers
+                        ttsVoiceSelect.appendChild(option);
+                    });
+                }
+            }
+
+            // Chrome loads voices asynchronously
+            if (speechSynthesis.onvoiceschanged !== undefined) {
+                speechSynthesis.onvoiceschanged = populateVoices;
+            }
+            populateVoices(); // Call once immediately for FF/Safari
+
+            ttsLangSelect.addEventListener('change', () => {
+                populateVoices();
+                setDirection(ttsInput, ttsLangSelect.value);
+                const placeholder = ttsLangSelect.value === 'fa-IR' 
+                    ? "متن خود را اینجا بنویسید..." 
+                    : "Type something here to hear it spoken...";
+                ttsInput.placeholder = placeholder;
+            });
+
+            // Initial Direction Setup
+            setDirection(ttsInput, ttsLangSelect.value);
+
+            ttsSpeakBtn.addEventListener('click', () => {
+                if (synth.speaking) {
+                    synth.cancel();
+                }
+
+                const text = ttsInput.value;
+                if (text !== '') {
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    
+                    // Voice Selection
+                    const selectedVoiceName = ttsVoiceSelect.value;
+                    const selectedVoice = voices.find(v => v.name === selectedVoiceName);
+                    if (selectedVoice) {
+                        utterance.voice = selectedVoice;
+                    }
+                    
+                    // It's crucial to set the lang on the utterance as well
+                    utterance.lang = ttsLangSelect.value;
+                    utterance.rate = ttsRate.value;
+
+                    // Event handling for button state
+                    utterance.onstart = () => {
+                        ttsSpeakBtn.innerHTML = `<svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Speaking...`;
+                        ttsSpeakBtn.classList.add('opacity-75', 'cursor-not-allowed');
+                    };
+
+                    utterance.onend = () => {
+                        resetSpeakButton();
+               
